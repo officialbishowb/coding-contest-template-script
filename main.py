@@ -1,67 +1,76 @@
-from time import sleep
+import argparse
 import glob
+import importlib.util
 import os
-from alive_progress import alive_bar
+
+# The Pattern for input and output files
+
+INPUT_FILE_PATTERN = 'input/{}.in'
+OUTPUT_FILE_PATTERN = 'output/{}.out'
+LEVEL_PY_FILE = 'levels/lvl{}.py'
 
 
-# The pattern used to match input files.
-# Used to find and iterate over all input files.
-# Must be a valid glob pattern.
-# See https://docs.python.org/3/library/glob.html
-INPUT_FILE_PATTERN = 'input/*.in'
-
-# The pattern used to match output files.
-# Used to save the processed input to a file.
-# Must contain a single asterisk ('*') which will be replaced by the input file name.
-OUTPUT_FILE_PATTERN = 'output/*.out'
-
-def do_work(input: str) -> str:
-    """
-    Processes the given input and returns the result.
 
 
-    Parameters
-    ----------
-    input : str
-        The input to process.
+def init():
+    """Create necessary folders if they don't exist"""
+    for folder in ['input', 'output', 'levels']:
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+
+
+def main():
+    """Run the main program"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lvl', type=int, required=True)
+    args = parser.parse_args()
+
+    level_to_exec = args.lvl
+
+    # Remove all files from the output folder (Clean up)
+    for file_path in glob.glob('output/*'):
+        os.remove(file_path)
+
+    # Get the path to the level python file
+    level_py_file = LEVEL_PY_FILE.format(level_to_exec)
+
+    print('Reading from input file and parsing it to the level module')
+
+    # Read the input file
+    input_formatted = INPUT_FILE_PATTERN.format(f"level_{level_to_exec}")
+    lvl_input = read_file(input_formatted)
         
-    Returns
-    -------
-    The processed result.
-    """
+
+    # Load the module from the file path
+    spec = importlib.util.spec_from_file_location("lvl_module", level_py_file)
+    lvl_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(lvl_module)
+
+    # Call the main() function within the imported module
+    output = lvl_module.main(lvl_input)
+
+    # Write the output to the output file
+    output_formatted = OUTPUT_FILE_PATTERN.format(f"level_{level_to_exec}")
+    save_file(output_formatted, output)
     
-    # your code here
     
-    pass
 
-files = glob.glob(INPUT_FILE_PATTERN)
-
-# show a progress becaus it looks cool :)
-with alive_bar(len(files)) as bar:
-    # iterate over all input files
-    for input_file in files:
-        # read the input file
-        with open(input_file, 'r') as f:
-            input = f.read()
-        
-        # process the input
-        output = do_work(input)
-        
-        # write the output to a file
-        base = os.path.basename(input_file)
-        filename, file_extension = os.path.splitext(base)
-        
-        output_file = OUTPUT_FILE_PATTERN.replace('*', filename)
-        
-        if(not os.path.exists(os.path.dirname(output_file))):
-            os.makedirs(os.path.dirname(output_file))
-            
-        if os.path.exists(output_file):
-            os.remove(output_file)
-        
-        with open(output_file, 'w') as f:
-            f.write(output)
-        
-        # update the progress bar
-        bar()
+def read_file(file_name):
+    """Read a file and return its contents"""
+    if not os.path.exists(file_name):
+        print(f'File {file_name} does not exist')
+        return
     
+    with open(file_name, 'r') as input_file:
+        return input_file.read()
+    
+def save_file(file_name, content):
+    """Save a file with the given content"""
+    with open(file_name, 'w') as output_file:
+        output_file.write(content)
+        
+        
+        
+if __name__ == '__main__':
+    init()
+    main()

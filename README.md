@@ -4,26 +4,19 @@ Template script for coding contest designed to be reused for each different leve
 
 ## Usage
 
-1. Install the required packages by running
+1. Modify the variables `INPUT_FILE_PATTERN` and `OUTPUT_FILE_PATTERN` to match your desired input and output file patterns. 
+
+2. Implement your logic to solve the level under levels/lvlX.py. The function `main(input:str)` is the entry point for the script. You **have to** add the function and modify the function to implement your own processing logic.
+
+3. Put the files that have to be processed in the directory specified by the `INPUT_FILE_PATTERN` variable.
+
+4. Run the script
 
    ```bash
-   pip install -r requirements.txt
+   python main.py --lvl X
    ```
 
-   
-
-2. Modify the variables `INPUT_FILE_PATTERN` and `OUTPUT_FILE_PATTERN` to match your desired input and output file patterns. 
-
-2. Implement your logic to solve the level in `do_work`.
-
-3. Save the modified code as `main.py`.
-
-4. Put the files that have to be processed in the directory specified by the `INPUT_FILE_PATTERN` variable.
-
-5. Run the script
-
-   ```bash
-   python main.py
+   where `X` is the level number. The script will process all files that match the `INPUT_FILE_PATTERN` variable and write the output to the files that match the `OUTPUT_FILE_PATTERN` variable.
    ```
 
 ## Configuration
@@ -35,4 +28,4 @@ The following variables can be modified to configure the script:
 
 The following parts **MUST** be configured:
 
-- `do_work`: This function processes the input and returns the result. You **have to**modify this function to implement your own processing logic.
+- 'levels/lvlX.py' - `def main(input:str)` function - This function is the entry point for the script. You **have to** add the function and modify the function to implement your own processing logic.
