@@ -17,7 +17,7 @@ Template script for coding contest designed to be reused for each different leve
    ```
 
    where `X` is the level number. The script will process all files that match the `INPUT_FILE_PATTERN` variable and write the output to the files that match the `OUTPUT_FILE_PATTERN` variable.
-   ```
+
 
 ## Configuration
 
