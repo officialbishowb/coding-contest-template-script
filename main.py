@@ -5,8 +5,8 @@ import os
 
 # The Pattern for input and output files
 
-INPUT_FILE_PATTERN = 'input/{}.in'
-OUTPUT_FILE_PATTERN = 'output/{}.out'
+INPUT_FILES_FOLDER = 'input/'
+OUTPUT_FILES_FOLDER = 'output/{}'
 LEVEL_PY_FILE = 'levels/lvl{}.py'
 
 
@@ -37,32 +37,44 @@ def main():
     print('Reading from input file and parsing it to the level module')
 
     # Read the input file
-    input_formatted = INPUT_FILE_PATTERN.format(f"level_{level_to_exec}")
-    lvl_input = read_file(input_formatted)
+    lvl_inputs = read_folder(INPUT_FILES_FOLDER)
         
 
     # Load the module from the file path
     spec = importlib.util.spec_from_file_location("lvl_module", level_py_file)
     lvl_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(lvl_module)
+    
+    
 
     # Call the main() function within the imported module
-    output = lvl_module.main(lvl_input)
-
-    # Write the output to the output file
-    output_formatted = OUTPUT_FILE_PATTERN.format(f"level_{level_to_exec}")
-    save_file(output_formatted, output)
+    for file in lvl_inputs:
+        file_content = read_file(file)
+        output = lvl_module.main(file_content)
+        
+        # Write the output to the output file
+        file_name = file.split('/')[-1] if '/' in file else file.split('\\')[-1]
+        file_name = file_name.replace('.in', '.out')
+        print(f'Writing to output file {file_name}')
+        save_file(OUTPUT_FILES_FOLDER.format(file_name), output)
     
     
 
+def read_folder(foldername):
+    """Read a folder file and return the name of the files"""
+    files = []
+    
+    # Read all files in the folder and save the name
+    for file_path in glob.glob(f'{foldername}/*.in'):
+        files.append(file_path)
+        
+    return files
+    
 def read_file(file_name):
-    """Read a file and return its contents"""
-    if not os.path.exists(file_name):
-        print(f'File {file_name} does not exist')
-        return
-    
+    """Read a file and return the content"""
     with open(file_name, 'r') as input_file:
         return input_file.read()
+    
     
 def save_file(file_name, content):
     """Save a file with the given content"""
