@@ -27,10 +27,6 @@ def main():
 
     level_to_exec = args.lvl
 
-    # Remove all files from the output folder (Clean up)
-    for file_path in glob.glob('output/*'):
-        os.remove(file_path)
-
     # Get the path to the level python file
     level_py_file = LEVEL_PY_FILE.format(level_to_exec)
 
